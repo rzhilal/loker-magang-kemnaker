@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pencari Lowongan Magang Hub Kemnaker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .filter-container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            outline: none;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .search-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .filter-select {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .filter-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 18px;
+            padding: 20px;
+        }
+
+        .job-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .job-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+
+        .job-header {
+            display: flex;
+            align-items: start;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .company-logo {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .job-title {
+            flex: 1;
+        }
+
+        .job-title h2 {
+            color: #333;
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .company-name {
+            color: #667eea;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .location {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .badge-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .badge-status {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-quota {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-registered {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .job-description {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .job-details {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .detail-row {
+            display: flex;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #333;
+            min-width: 150px;
+        }
+
+        .detail-value {
+            color: #666;
+            flex: 1;
+        }
+
+        .programs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .program-tag {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+        }
+
+        .no-results {
+            text-align: center;
+            color: white;
+            font-size: 18px;
+            padding: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            background: rgba(255,255,255,0.95);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea15, #764ba215);
+            border-radius: 10px;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .reset-btn {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .reset-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .job-header {
+                flex-direction: column;
+            }
+            
+            .detail-row {
+                flex-direction: column;
+            }
+            
+            .detail-label {
+                margin-bottom: 5px;
+            }
+
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Pencari Lowongan Magang</h1>
+            <p>Temukan kesempatan magang terbaik di Magang Hub Kemnaker</p>
+        </div>
+
+        <div class="filter-container">
+            <input type="text" 
+                   id="searchInput" 
+                   class="search-input" 
+                   placeholder="🔍 Cari posisi, perusahaan, atau deskripsi...">
+            
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label for="provinsiFilter">📍 Provinsi</label>
+                    <select id="provinsiFilter" class="filter-select">
+                        <option value="">Semua Provinsi</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="kabupatenFilter">🏙️ Kabupaten/Kota</label>
+                    <select id="kabupatenFilter" class="filter-select">
+                        <option value="">Semua Kabupaten/Kota</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="jenjangFilter">🎓 Jenjang Pendidikan</label>
+                    <select id="jenjangFilter" class="filter-select">
+                        <option value="">Semua Jenjang</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="prodiFilter">📚 Program Studi</label>
+                    <select id="prodiFilter" class="filter-select">
+                        <option value="">Semua Program Studi</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="perusahaanFilter">🏢 Perusahaan</label>
+                    <select id="perusahaanFilter" class="filter-select">
+                        <option value="">Semua Perusahaan</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px; text-align: center;">
+                <button id="resetBtn" class="reset-btn">🔄 Reset Filter</button>
+            </div>
+        </div>
+
+        <div id="stats" class="stats" style="display: none;"></div>
+        <div id="loading" class="loading">⏳ Memuat semua data lowongan...</div>
+        <div id="jobList"></div>
+    </div>
+
+    <script>
+        let allJobs = [];
+        let filteredJobs = [];
+
+        async function fetchAllJobs() {
+            try {
+                const limit = 100; // Max per page
+                let page = 1;
+                let hasMoreData = true;
+                allJobs = [];
+
+                document.getElementById('loading').innerHTML = 
+                    '⏳ Memuat data lowongan... <span id="loadingProgress">(Halaman 1)</span>';
+
+                while (hasMoreData) {
+                    const response = await fetch(
+                        `https://maganghub.kemnaker.go.id/be/v1/api/list/vacancies-aktif?order_by=&order_direction=ASC&page=${page}&limit=${limit}`
+                    );
+                    const data = await response.json();
+                    
+                    if (data.data && data.data.length > 0) {
+                        allJobs = [...allJobs, ...data.data];
+                        page++;
+                        
+                        document.getElementById('loadingProgress').textContent = 
+                            `(Halaman ${page}, Total: ${allJobs.length} lowongan)`;
+                        
+                        // Check if there's more data
+                        if (data.data.length < limit) {
+                            hasMoreData = false;
+                        }
+                    } else {
+                        hasMoreData = false;
+                    }
+                    
+                    // Safety limit to prevent infinite loop
+                    if (page > 50) {
+                        hasMoreData = false;
+                    }
+                }
+
+                filteredJobs = [...allJobs];
+                
+                populateFilters();
+                displayStats(filteredJobs);
+                displayJobs(filteredJobs);
+                
+                document.getElementById('loading').style.display = 'none';
+                
+                console.log(`✅ Berhasil memuat ${allJobs.length} lowongan dari ${page - 1} halaman`);
+            } catch (error) {
+                document.getElementById('loading').innerHTML = 
+                    '<div class="no-results">❌ Gagal memuat data. Silakan coba lagi.</div>';
+                console.error('Error fetching jobs:', error);
+            }
+        }
+
+        function populateFilters() {
+            const provinsiSet = new Set();
+            const kabupatenSet = new Set();
+            const jenjangSet = new Set();
+            const prodiSet = new Set();
+            const perusahaanSet = new Set();
+
+            allJobs.forEach(job => {
+                if (job.perusahaan?.nama_provinsi) {
+                    provinsiSet.add(job.perusahaan.nama_provinsi);
+                }
+                if (job.perusahaan?.nama_kabupaten) {
+                    kabupatenSet.add(job.perusahaan.nama_kabupaten);
+                }
+                if (job.perusahaan?.nama_perusahaan) {
+                    perusahaanSet.add(job.perusahaan.nama_perusahaan);
+                }
+                
+                try {
+                    const jenjangArray = JSON.parse(job.jenjang || '[]');
+                    jenjangArray.forEach(j => jenjangSet.add(j));
+                } catch (e) {}
+                
+                try {
+                    const prodiArray = JSON.parse(job.program_studi || '[]');
+                    prodiArray.forEach(p => {
+                        if (p.title) prodiSet.add(p.title);
+                    });
+                } catch (e) {}
+            });
+
+            populateSelect('provinsiFilter', Array.from(provinsiSet).sort());
+            populateSelect('kabupatenFilter', Array.from(kabupatenSet).sort());
+            populateSelect('jenjangFilter', Array.from(jenjangSet).sort());
+            populateSelect('prodiFilter', Array.from(prodiSet).sort());
+            populateSelect('perusahaanFilter', Array.from(perusahaanSet).sort());
+        }
+
+        function populateSelect(selectId, options) {
+            const select = document.getElementById(selectId);
+            const currentOptions = select.querySelectorAll('option:not(:first-child)');
+            currentOptions.forEach(opt => opt.remove());
+            
+            options.forEach(option => {
+                const opt = document.createElement('option');
+                opt.value = option;
+                opt.textContent = option;
+                select.appendChild(opt);
+            });
+        }
+
+        function applyFilters() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const provinsi = document.getElementById('provinsiFilter').value;
+            const kabupaten = document.getElementById('kabupatenFilter').value;
+            const jenjang = document.getElementById('jenjangFilter').value;
+            const prodi = document.getElementById('prodiFilter').value;
+            const perusahaan = document.getElementById('perusahaanFilter').value;
+
+            filteredJobs = allJobs.filter(job => {
+                const perusahaanData = job.perusahaan || {};
+                
+                const matchSearch = !searchText || 
+                    job.posisi.toLowerCase().includes(searchText) ||
+                    perusahaanData.nama_perusahaan?.toLowerCase().includes(searchText) ||
+                    job.deskripsi_posisi?.toLowerCase().includes(searchText);
+                
+                const matchProvinsi = !provinsi || perusahaanData.nama_provinsi === provinsi;
+                const matchKabupaten = !kabupaten || perusahaanData.nama_kabupaten === kabupaten;
+                const matchPerusahaan = !perusahaan || perusahaanData.nama_perusahaan === perusahaan;
+                
+                let matchJenjang = !jenjang;
+                if (jenjang) {
+                    try {
+                        const jenjangArray = JSON.parse(job.jenjang || '[]');
+                        matchJenjang = jenjangArray.includes(jenjang);
+                    } catch (e) {
+                        matchJenjang = false;
+                    }
+                }
+                
+                let matchProdi = !prodi;
+                if (prodi) {
+                    try {
+                        const prodiArray = JSON.parse(job.program_studi || '[]');
+                        matchProdi = prodiArray.some(p => p.title === prodi);
+                    } catch (e) {
+                        matchProdi = false;
+                    }
+                }
+
+                return matchSearch && matchProvinsi && matchKabupaten && matchJenjang && matchProdi && matchPerusahaan;
+            });
+
+            displayStats(filteredJobs);
+            displayJobs(filteredJobs);
+        }
+
+        function displayStats(jobs) {
+            const totalQuota = jobs.reduce((sum, job) => sum + (job.jumlah_kuota || 0), 0);
+            const totalRegistered = jobs.reduce((sum, job) => sum + (job.jumlah_terdaftar || 0), 0);
+            const availableSlots = totalQuota - totalRegistered;
+
+            document.getElementById('stats').style.display = 'grid';
+            document.getElementById('stats').innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-number">${jobs.length}</div>
+                    <div class="stat-label">Lowongan Tersedia</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">${totalQuota}</div>
+                    <div class="stat-label">Total Kuota</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">${totalRegistered}</div>
+                    <div class="stat-label">Total Pendaftar</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">${availableSlots}</div>
+                    <div class="stat-label">Sisa Kuota</div>
+                </div>
+            `;
+        }
+
+        function displayJobs(jobs) {
+            const jobList = document.getElementById('jobList');
+
+            if (jobs.length === 0) {
+                jobList.innerHTML = '<div class="no-results">🔍 Tidak ada lowongan ditemukan dengan filter yang dipilih</div>';
+                return;
+            }
+
+            jobList.innerHTML = jobs.map(job => {
+                const programStudi = JSON.parse(job.program_studi || '[]');
+                const jenjang = JSON.parse(job.jenjang || '[]');
+                const perusahaan = job.perusahaan || {};
+                const jadwal = job.jadwal || {};
+                const sisaKuota = (job.jumlah_kuota || 0) - (job.jumlah_terdaftar || 0);
+
+                return `
+                    <div class="job-card">
+                        <div class="job-header">
+                            <img src="${perusahaan.logo || 'https://via.placeholder.com/80'}" 
+                                 alt="${perusahaan.nama_perusahaan}" 
+                                 class="company-logo"
+                                 onerror="this.src='https://via.placeholder.com/80?text=No+Logo'">
+                            <div class="job-title">
+                                <h2>${job.posisi}</h2>
+                                <div class="company-name">${perusahaan.nama_perusahaan}</div>
+                                <div class="location">📍 ${perusahaan.nama_kabupaten}, ${perusahaan.nama_provinsi}</div>
+                            </div>
+                        </div>
+
+                        <div class="badge-container">
+                            <span class="badge badge-status">✅ ${job.ref_status_posisi?.nama_status_posisi || 'Status tidak tersedia'}</span>
+                            <span class="badge badge-quota">👥 Kuota: ${job.jumlah_kuota}</span>
+                            <span class="badge badge-registered">📝 Pendaftar: ${job.jumlah_terdaftar}</span>
+                            <span class="badge ${sisaKuota > 0 ? 'badge-status' : 'badge-quota'}">
+                                ${sisaKuota > 0 ? '🎯 Sisa: ' + sisaKuota : '⚠️ Penuh'}
+                            </span>
+                        </div>
+
+                        <div class="job-description">
+                            <strong>Deskripsi:</strong><br>
+                            ${job.deskripsi_posisi || 'Tidak ada deskripsi'}
+                        </div>
+
+                        <div class="job-details">
+                            <div class="detail-row">
+                                <div class="detail-label">📅 Periode Magang</div>
+                                <div class="detail-value">
+                                    ${new Date(jadwal.tanggal_mulai).toLocaleDateString('id-ID')} - 
+                                    ${new Date(jadwal.tanggal_selesai).toLocaleDateString('id-ID')}
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">⏰ Batas Pendaftaran</div>
+                                <div class="detail-value">
+                                    ${new Date(jadwal.tanggal_pendaftaran_akhir).toLocaleDateString('id-ID', {
+                                        weekday: 'long',
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric'
+                                    })}
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">🎓 Jenjang Pendidikan</div>
+                                <div class="detail-value">${jenjang.join(', ') || '-'}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">📚 Program Studi</div>
+                                <div class="detail-value">
+                                    <div class="programs">
+                                        ${programStudi.map(p => `<span class="program-tag">${p.title}</span>`).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">📍 Alamat Perusahaan</div>
+                                <div class="detail-value">${perusahaan.alamat}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        document.getElementById('provinsiFilter').addEventListener('change', applyFilters);
+        document.getElementById('kabupatenFilter').addEventListener('change', applyFilters);
+        document.getElementById('jenjangFilter').addEventListener('change', applyFilters);
+        document.getElementById('prodiFilter').addEventListener('change', applyFilters);
+        document.getElementById('perusahaanFilter').addEventListener('change', applyFilters);
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('provinsiFilter').value = '';
+            document.getElementById('kabupatenFilter').value = '';
+            document.getElementById('jenjangFilter').value = '';
+            document.getElementById('prodiFilter').value = '';
+            document.getElementById('perusahaanFilter').value = '';
+            applyFilters();
+        });
+
+        fetchAllJobs();
+    </script>
+</body>
+</html>
