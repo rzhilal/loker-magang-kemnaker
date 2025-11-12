@@ -583,9 +583,13 @@
         <div id="stats" class="stats" style="display: none;"></div>
         <div id="loading" class="loading">⏳ Memuat semua data lowongan...</div>
         <div id="jobList"></div>
+        <div id="pagination" style="text-align:center; margin-top:30px; color:white;"></div>
     </div>
 
     <script>
+        let currentPage = 1;
+        const itemsPerPage = 250;
+
         let allJobs = [];
         let filteredJobs = [];
         const selectedFilters = {
@@ -855,13 +859,22 @@
 
         function displayJobs(jobs) {
             const jobList = document.getElementById('jobList');
+            const totalPages = Math.ceil(jobs.length / itemsPerPage);
 
+            // Jika tidak ada data
             if (jobs.length === 0) {
                 jobList.innerHTML = '<div class="no-results">🔍 Tidak ada lowongan ditemukan dengan filter yang dipilih</div>';
+                document.getElementById('pagination').innerHTML = '';
                 return;
             }
 
-            jobList.innerHTML = jobs.map(job => {
+            // Hitung index awal dan akhir data yang akan ditampilkan
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const jobsToDisplay = jobs.slice(start, end);
+
+            // Tampilkan data per halaman
+            jobList.innerHTML = jobsToDisplay.map(job => {
                 const programStudi = JSON.parse(job.program_studi || '[]');
                 const jenjang = JSON.parse(job.jenjang || '[]');
                 const perusahaan = job.perusahaan || {};
@@ -872,9 +885,9 @@
                     <div class="job-card">
                         <div class="job-header">
                             <img src="${perusahaan.logo || 'https://via.placeholder.com/80'}" 
-                                 alt="${perusahaan.nama_perusahaan}" 
-                                 class="company-logo"
-                                 onerror="this.src='https://via.placeholder.com/80?text=No+Logo'">
+                                alt="${perusahaan.nama_perusahaan}" 
+                                class="company-logo"
+                                onerror="this.src='https://via.placeholder.com/80?text=No+Logo'">
                             <div class="job-title">
                                 <h2>${job.posisi}</h2>
                                 <div class="company-name">${perusahaan.nama_perusahaan}</div>
@@ -895,47 +908,37 @@
                             <strong>Deskripsi:</strong><br>
                             ${job.deskripsi_posisi || 'Tidak ada deskripsi'}
                         </div>
-
-                        <div class="job-details">
-                            <div class="detail-row">
-                                <div class="detail-label">📅 Periode Magang</div>
-                                <div class="detail-value">
-                                    ${new Date(jadwal.tanggal_mulai).toLocaleDateString('id-ID')} - 
-                                    ${new Date(jadwal.tanggal_selesai).toLocaleDateString('id-ID')}
-                                </div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">⏰ Batas Pendaftaran</div>
-                                <div class="detail-value">
-                                    ${new Date(jadwal.tanggal_pendaftaran_akhir).toLocaleDateString('id-ID', {
-                                        weekday: 'long',
-                                        year: 'numeric',
-                                        month: 'long',
-                                        day: 'numeric'
-                                    })}
-                                </div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">🎓 Jenjang Pendidikan</div>
-                                <div class="detail-value">${jenjang.join(', ') || '-'}</div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">📚 Program Studi</div>
-                                <div class="detail-value">
-                                    <div class="programs">
-                                        ${programStudi.map(p => `<span class="program-tag">${p.title}</span>`).join('')}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">📍 Alamat Perusahaan</div>
-                                <div class="detail-value">${perusahaan.alamat}</div>
-                            </div>
-                        </div>
                     </div>
                 `;
             }).join('');
+
+            // Tambahkan kontrol pagination
+            renderPagination(totalPages);
         }
+
+        function renderPagination(totalPages) {
+            let paginationHTML = '';
+
+            if (totalPages > 1) {
+                paginationHTML += `
+                    <div class="pagination">
+                        <button ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">⬅️ Sebelumnya</button>
+                        <span>Halaman ${currentPage} dari ${totalPages}</span>
+                        <button ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">Berikutnya ➡️</button>
+                    </div>
+                `;
+            }
+
+            document.getElementById('pagination').innerHTML = paginationHTML;
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            displayJobs(filteredJobs);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+
 
         document.getElementById('searchInput').addEventListener('input', applyFilters);
 
