@@ -77,19 +77,163 @@
             font-size: 0.9em;
         }
 
-        .filter-select {
+        .multi-select-container {
+            position: relative;
+        }
+
+        .multi-select-header {
             padding: 12px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
-            font-size: 14px;
-            outline: none;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             transition: all 0.3s;
+        }
+
+        .multi-select-header:hover {
+            border-color: #667eea;
+        }
+
+        .multi-select-header.active {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .multi-select-placeholder {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .multi-select-count {
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .multi-select-arrow {
+            transition: transform 0.3s;
+        }
+
+        .multi-select-arrow.active {
+            transform: rotate(180deg);
+        }
+
+        .multi-select-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 5px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            display: none;
+        }
+
+        .multi-select-dropdown.active {
+            display: block;
+        }
+
+        .multi-select-search {
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1;
+        }
+
+        .multi-select-search input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .multi-select-search input:focus {
+            border-color: #667eea;
+        }
+
+        .multi-select-options {
+            padding: 5px;
+        }
+
+        .multi-select-option {
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .multi-select-option:hover {
+            background: #f5f5f5;
+        }
+
+        .multi-select-option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .multi-select-option label {
+            cursor: pointer;
+            flex: 1;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .multi-select-actions {
+            padding: 10px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 8px;
+            position: sticky;
+            bottom: 0;
             background: white;
         }
 
-        .filter-select:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        .multi-select-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .multi-select-btn-clear {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .multi-select-btn-clear:hover {
+            background: #e0e0e0;
+        }
+
+        .multi-select-btn-apply {
+            background: #667eea;
+            color: white;
+        }
+
+        .multi-select-btn-apply:hover {
+            background: #5568d3;
         }
 
         .loading {
@@ -331,38 +475,103 @@
             
             <div class="filter-grid">
                 <div class="filter-group">
-                    <label for="provinsiFilter">📍 Provinsi</label>
-                    <select id="provinsiFilter" class="filter-select">
-                        <option value="">Semua Provinsi</option>
-                    </select>
+                    <label>🌍 Provinsi</label>
+                    <div class="multi-select-container" id="provinsiContainer">
+                        <div class="multi-select-header" onclick="toggleDropdown('provinsi')">
+                            <span class="multi-select-placeholder" id="provinsiPlaceholder">Pilih Provinsi</span>
+                            <span class="multi-select-arrow">▼</span>
+                        </div>
+                        <div class="multi-select-dropdown" id="provinsiDropdown">
+                            <div class="multi-select-search">
+                                <input type="text" placeholder="Cari provinsi..." oninput="filterOptions('provinsi', this.value)">
+                            </div>
+                            <div class="multi-select-options" id="provinsiOptions"></div>
+                            <div class="multi-select-actions">
+                                <button class="multi-select-btn multi-select-btn-clear" onclick="clearSelection('provinsi')">Hapus</button>
+                                <button class="multi-select-btn multi-select-btn-apply" onclick="applyFilters()">Terapkan</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="filter-group">
-                    <label for="kabupatenFilter">🏙️ Kabupaten/Kota</label>
-                    <select id="kabupatenFilter" class="filter-select">
-                        <option value="">Semua Kabupaten/Kota</option>
-                    </select>
+                    <label>🏙️ Kabupaten/Kota</label>
+                    <div class="multi-select-container" id="kabupatenContainer">
+                        <div class="multi-select-header" onclick="toggleDropdown('kabupaten')">
+                            <span class="multi-select-placeholder" id="kabupatenPlaceholder">Pilih Kabupaten/Kota</span>
+                            <span class="multi-select-arrow">▼</span>
+                        </div>
+                        <div class="multi-select-dropdown" id="kabupatenDropdown">
+                            <div class="multi-select-search">
+                                <input type="text" placeholder="Cari kabupaten/kota..." oninput="filterOptions('kabupaten', this.value)">
+                            </div>
+                            <div class="multi-select-options" id="kabupatenOptions"></div>
+                            <div class="multi-select-actions">
+                                <button class="multi-select-btn multi-select-btn-clear" onclick="clearSelection('kabupaten')">Hapus</button>
+                                <button class="multi-select-btn multi-select-btn-apply" onclick="applyFilters()">Terapkan</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="filter-group">
-                    <label for="jenjangFilter">🎓 Jenjang Pendidikan</label>
-                    <select id="jenjangFilter" class="filter-select">
-                        <option value="">Semua Jenjang</option>
-                    </select>
+                    <label>🎓 Jenjang Pendidikan</label>
+                    <div class="multi-select-container" id="jenjangContainer">
+                        <div class="multi-select-header" onclick="toggleDropdown('jenjang')">
+                            <span class="multi-select-placeholder" id="jenjangPlaceholder">Pilih Jenjang</span>
+                            <span class="multi-select-arrow">▼</span>
+                        </div>
+                        <div class="multi-select-dropdown" id="jenjangDropdown">
+                            <div class="multi-select-search">
+                                <input type="text" placeholder="Cari jenjang..." oninput="filterOptions('jenjang', this.value)">
+                            </div>
+                            <div class="multi-select-options" id="jenjangOptions"></div>
+                            <div class="multi-select-actions">
+                                <button class="multi-select-btn multi-select-btn-clear" onclick="clearSelection('jenjang')">Hapus</button>
+                                <button class="multi-select-btn multi-select-btn-apply" onclick="applyFilters()">Terapkan</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="filter-group">
-                    <label for="prodiFilter">📚 Program Studi</label>
-                    <select id="prodiFilter" class="filter-select">
-                        <option value="">Semua Program Studi</option>
-                    </select>
+                    <label>📚 Program Studi</label>
+                    <div class="multi-select-container" id="prodiContainer">
+                        <div class="multi-select-header" onclick="toggleDropdown('prodi')">
+                            <span class="multi-select-placeholder" id="prodiPlaceholder">Pilih Program Studi</span>
+                            <span class="multi-select-arrow">▼</span>
+                        </div>
+                        <div class="multi-select-dropdown" id="prodiDropdown">
+                            <div class="multi-select-search">
+                                <input type="text" placeholder="Cari program studi..." oninput="filterOptions('prodi', this.value)">
+                            </div>
+                            <div class="multi-select-options" id="prodiOptions"></div>
+                            <div class="multi-select-actions">
+                                <button class="multi-select-btn multi-select-btn-clear" onclick="clearSelection('prodi')">Hapus</button>
+                                <button class="multi-select-btn multi-select-btn-apply" onclick="applyFilters()">Terapkan</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="filter-group">
-                    <label for="perusahaanFilter">🏢 Perusahaan</label>
-                    <select id="perusahaanFilter" class="filter-select">
-                        <option value="">Semua Perusahaan</option>
-                    </select>
+                    <label>🏢 Perusahaan</label>
+                    <div class="multi-select-container" id="perusahaanContainer">
+                        <div class="multi-select-header" onclick="toggleDropdown('perusahaan')">
+                            <span class="multi-select-placeholder" id="perusahaanPlaceholder">Pilih Perusahaan</span>
+                            <span class="multi-select-arrow">▼</span>
+                        </div>
+                        <div class="multi-select-dropdown" id="perusahaanDropdown">
+                            <div class="multi-select-search">
+                                <input type="text" placeholder="Cari perusahaan..." oninput="filterOptions('perusahaan', this.value)">
+                            </div>
+                            <div class="multi-select-options" id="perusahaanOptions"></div>
+                            <div class="multi-select-actions">
+                                <button class="multi-select-btn multi-select-btn-clear" onclick="clearSelection('perusahaan')">Hapus</button>
+                                <button class="multi-select-btn multi-select-btn-apply" onclick="applyFilters()">Terapkan</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -379,10 +588,120 @@
     <script>
         let allJobs = [];
         let filteredJobs = [];
+        const selectedFilters = {
+            provinsi: new Set(),
+            kabupaten: new Set(),
+            jenjang: new Set(),
+            prodi: new Set(),
+            perusahaan: new Set()
+        };
+        const allOptions = {
+            provinsi: [],
+            kabupaten: [],
+            jenjang: [],
+            prodi: [],
+            perusahaan: []
+        };
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.multi-select-container')) {
+                document.querySelectorAll('.multi-select-dropdown').forEach(dropdown => {
+                    dropdown.classList.remove('active');
+                });
+                document.querySelectorAll('.multi-select-header').forEach(header => {
+                    header.classList.remove('active');
+                });
+                document.querySelectorAll('.multi-select-arrow').forEach(arrow => {
+                    arrow.classList.remove('active');
+                });
+            }
+        });
+
+        function toggleDropdown(type) {
+            event.stopPropagation();
+            const dropdown = document.getElementById(`${type}Dropdown`);
+            const header = event.currentTarget;
+            const arrow = header.querySelector('.multi-select-arrow');
+            const isActive = dropdown.classList.contains('active');
+            
+            // Close all dropdowns
+            document.querySelectorAll('.multi-select-dropdown').forEach(d => d.classList.remove('active'));
+            document.querySelectorAll('.multi-select-header').forEach(h => h.classList.remove('active'));
+            document.querySelectorAll('.multi-select-arrow').forEach(a => a.classList.remove('active'));
+            
+            // Toggle current dropdown
+            if (!isActive) {
+                dropdown.classList.add('active');
+                header.classList.add('active');
+                arrow.classList.add('active');
+            }
+        }
+
+        function filterOptions(type, searchText) {
+            const options = allOptions[type];
+            const container = document.getElementById(`${type}Options`);
+            const filtered = options.filter(opt => 
+                opt.toLowerCase().includes(searchText.toLowerCase())
+            );
+            
+            container.innerHTML = filtered.map(option => {
+                const checked = selectedFilters[type].has(option) ? 'checked' : '';
+                const safeId = `${type}_${option.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                const escapedOption = option.replace(/'/g, "\\'");
+                return `
+                    <div class="multi-select-option">
+                        <input type="checkbox" 
+                               id="${safeId}" 
+                               value="${option}"
+                               ${checked}
+                               onchange="toggleOption('${type}', '${escapedOption}')">
+                        <label for="${safeId}">${option}</label>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleOption(type, option) {
+            if (selectedFilters[type].has(option)) {
+                selectedFilters[type].delete(option);
+            } else {
+                selectedFilters[type].add(option);
+            }
+            updatePlaceholder(type);
+        }
+
+        function updatePlaceholder(type) {
+            const placeholder = document.getElementById(`${type}Placeholder`);
+            const count = selectedFilters[type].size;
+            const labels = {
+                provinsi: 'Provinsi',
+                kabupaten: 'Kabupaten/Kota',
+                jenjang: 'Jenjang',
+                prodi: 'Program Studi',
+                perusahaan: 'Perusahaan'
+            };
+            
+            if (count === 0) {
+                placeholder.innerHTML = `Pilih ${labels[type]}`;
+            } else {
+                placeholder.innerHTML = `
+                    ${labels[type]}: 
+                    <span class="multi-select-count">${count} dipilih</span>
+                `;
+            }
+        }
+
+        function clearSelection(type) {
+            selectedFilters[type].clear();
+            updatePlaceholder(type);
+            filterOptions(type, '');
+            applyFilters();
+        }
 
         async function fetchAllJobs() {
             try {
-                const limit = 100; // Max per page
+                const limit = 100;
                 let page = 1;
                 let hasMoreData = true;
                 allJobs = [];
@@ -403,7 +722,6 @@
                         document.getElementById('loadingProgress').textContent = 
                             `(Halaman ${page}, Total: ${allJobs.length} lowongan)`;
                         
-                        // Check if there's more data
                         if (data.data.length < limit) {
                             hasMoreData = false;
                         }
@@ -411,7 +729,6 @@
                         hasMoreData = false;
                     }
                     
-                    // Safety limit to prevent infinite loop
                     if (page > 50) {
                         hasMoreData = false;
                     }
@@ -464,33 +781,21 @@
                 } catch (e) {}
             });
 
-            populateSelect('provinsiFilter', Array.from(provinsiSet).sort());
-            populateSelect('kabupatenFilter', Array.from(kabupatenSet).sort());
-            populateSelect('jenjangFilter', Array.from(jenjangSet).sort());
-            populateSelect('prodiFilter', Array.from(prodiSet).sort());
-            populateSelect('perusahaanFilter', Array.from(perusahaanSet).sort());
-        }
+            allOptions.provinsi = Array.from(provinsiSet).sort();
+            allOptions.kabupaten = Array.from(kabupatenSet).sort();
+            allOptions.jenjang = Array.from(jenjangSet).sort();
+            allOptions.prodi = Array.from(prodiSet).sort();
+            allOptions.perusahaan = Array.from(perusahaanSet).sort();
 
-        function populateSelect(selectId, options) {
-            const select = document.getElementById(selectId);
-            const currentOptions = select.querySelectorAll('option:not(:first-child)');
-            currentOptions.forEach(opt => opt.remove());
-            
-            options.forEach(option => {
-                const opt = document.createElement('option');
-                opt.value = option;
-                opt.textContent = option;
-                select.appendChild(opt);
-            });
+            filterOptions('provinsi', '');
+            filterOptions('kabupaten', '');
+            filterOptions('jenjang', '');
+            filterOptions('prodi', '');
+            filterOptions('perusahaan', '');
         }
 
         function applyFilters() {
             const searchText = document.getElementById('searchInput').value.toLowerCase();
-            const provinsi = document.getElementById('provinsiFilter').value;
-            const kabupaten = document.getElementById('kabupatenFilter').value;
-            const jenjang = document.getElementById('jenjangFilter').value;
-            const prodi = document.getElementById('prodiFilter').value;
-            const perusahaan = document.getElementById('perusahaanFilter').value;
 
             filteredJobs = allJobs.filter(job => {
                 const perusahaanData = job.perusahaan || {};
@@ -500,25 +805,30 @@
                     perusahaanData.nama_perusahaan?.toLowerCase().includes(searchText) ||
                     job.deskripsi_posisi?.toLowerCase().includes(searchText);
                 
-                const matchProvinsi = !provinsi || perusahaanData.nama_provinsi === provinsi;
-                const matchKabupaten = !kabupaten || perusahaanData.nama_kabupaten === kabupaten;
-                const matchPerusahaan = !perusahaan || perusahaanData.nama_perusahaan === perusahaan;
+                const matchProvinsi = selectedFilters.provinsi.size === 0 || 
+                    selectedFilters.provinsi.has(perusahaanData.nama_provinsi);
                 
-                let matchJenjang = !jenjang;
-                if (jenjang) {
+                const matchKabupaten = selectedFilters.kabupaten.size === 0 || 
+                    selectedFilters.kabupaten.has(perusahaanData.nama_kabupaten);
+                
+                const matchPerusahaan = selectedFilters.perusahaan.size === 0 || 
+                    selectedFilters.perusahaan.has(perusahaanData.nama_perusahaan);
+                
+                let matchJenjang = selectedFilters.jenjang.size === 0;
+                if (!matchJenjang) {
                     try {
                         const jenjangArray = JSON.parse(job.jenjang || '[]');
-                        matchJenjang = jenjangArray.includes(jenjang);
+                        matchJenjang = jenjangArray.some(j => selectedFilters.jenjang.has(j));
                     } catch (e) {
                         matchJenjang = false;
                     }
                 }
                 
-                let matchProdi = !prodi;
-                if (prodi) {
+                let matchProdi = selectedFilters.prodi.size === 0;
+                if (!matchProdi) {
                     try {
                         const prodiArray = JSON.parse(job.program_studi || '[]');
-                        matchProdi = prodiArray.some(p => p.title === prodi);
+                        matchProdi = prodiArray.some(p => selectedFilters.prodi.has(p.title));
                     } catch (e) {
                         matchProdi = false;
                     }
@@ -642,19 +952,16 @@
         }
 
         document.getElementById('searchInput').addEventListener('input', applyFilters);
-        document.getElementById('provinsiFilter').addEventListener('change', applyFilters);
-        document.getElementById('kabupatenFilter').addEventListener('change', applyFilters);
-        document.getElementById('jenjangFilter').addEventListener('change', applyFilters);
-        document.getElementById('prodiFilter').addEventListener('change', applyFilters);
-        document.getElementById('perusahaanFilter').addEventListener('change', applyFilters);
 
         document.getElementById('resetBtn').addEventListener('click', () => {
             document.getElementById('searchInput').value = '';
-            document.getElementById('provinsiFilter').value = '';
-            document.getElementById('kabupatenFilter').value = '';
-            document.getElementById('jenjangFilter').value = '';
-            document.getElementById('prodiFilter').value = '';
-            document.getElementById('perusahaanFilter').value = '';
+            
+            Object.keys(selectedFilters).forEach(key => {
+                selectedFilters[key].clear();
+                updatePlaceholder(key);
+                filterOptions(key, '');
+            });
+            
             applyFilters();
         });
 
